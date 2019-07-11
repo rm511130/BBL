@@ -79,11 +79,11 @@ export BBL_VSPHERE_VCENTER_USER=administrator@vsphere.local
 export BBL_VSPHERE_VCENTER_PASSWORD=Pivotal2018!
 export BBL_VSPHERE_VCENTER_IP=10.0.0.51
 export BBL_VSPHERE_VCENTER_DC=LabDatacenter
-export BBL_VSPHERE_VCENTER_CLUSTER=LanCluster
+export BBL_VSPHERE_VCENTER_CLUSTER=LabCluster
 export BBL_VSPHERE_VCENTER_RP=RP-Concourse
 export BBL_VSPHERE_NETWORK="VM Network"
 export BBL_VSPHERE_VCENTER_DS=vsanDatastore
-export BBL_VSPHERE_SUBNET_CIDR=10.0.0.0/16
+export BBL_VSPHERE_SUBNET_CIDR=10.99.0.0/16
 export BBL_VSPHERE_VCENTER_DISKS=bbl/disks
 export BBL_VSPHERE_VCENTER_TEMPLATES=bbl/templates
 export BBL_VSPHERE_VCENTER_VMS=bbl/vms
@@ -123,6 +123,90 @@ total 40
 0 drwxr-----   3 ralphmeria  wheel    96 Jul 11 16:30 vars
 ```
 
+More information about these files and directories is available [here](https://github.com/cloudfoundry/bosh-bootloader#managing-state)
+
+## 6. bbl up
+
+Let's kick-off the installation of Bosh:
+
+```
+$ bbl up
+step: terraform init
+step: terraform apply
+step: creating jumpbox
+Deployment manifest: '/work/bbl/bbl-env/jumpbox-deployment/jumpbox.yml'
+Deployment state: '/work/bbl/bbl-env/vars/jumpbox-state.json'
+
+Started validating
+  Downloading release 'os-conf'... Skipped [Found in local cache] (00:00:00)
+  Validating release 'os-conf'... Finished (00:00:00)
+  Downloading release 'bosh-vsphere-cpi'... Skipped [Found in local cache] (00:00:00)
+  Validating release 'bosh-vsphere-cpi'... Finished (00:00:00)
+  Validating cpi release... Finished (00:00:00)
+  Validating deployment manifest... Finished (00:00:00)
+  Downloading stemcell... Skipped [Found in local cache] (00:00:00)
+  Validating stemcell... Finished (00:00:00)
+Finished validating (00:00:00)
+
+Started installing CPI
+  Compiling package 'ruby-2.4-r4/0cdc60ed7fdb326e605479e9275346200af30a25'... Finished (00:00:00)
+  Compiling package 'vsphere_cpi/7556c6c966f3efcd1660cf2dc010e6c28a58182d'... Finished (00:00:00)
+  Compiling package 'iso9660wrap/2e7db549be4f20243d9e3b835df265e1a23d0ebb'... Finished (00:00:00)
+  Installing packages... Finished (00:00:01)
+  Rendering job templates... Finished (00:00:00)
+  Installing job 'vsphere_cpi'... Finished (00:00:00)
+Finished installing CPI (00:00:02)
+
+Starting registry... Finished (00:00:00)
+Uploading stemcell 'bosh-vsphere-esxi-ubuntu-xenial-go_agent/250.9'... Finished (00:01:14)
+
+Started deploying
+  Creating VM for instance 'jumpbox/0' from stemcell 'sc-f9ad23fc-d34e-4a0c-a9fa-72956fbec3b4'... Finished (00:00:27)
+  Waiting for the agent on VM 'vm-b18b248e-783d-41fd-9116-020db2198d23' to be ready... Failed (00:10:09)
+Failed deploying (00:10:36)
+
+Stopping registry... Finished (00:00:00)
+Cleaning up rendered CPI jobs... Finished (00:00:00)
+
+Deploying:
+  Creating instance 'jumpbox/0':
+    Waiting until instance is ready:
+      Post https://mbus:<redacted>@10.0.0.5:6868/agent: dial tcp 10.0.0.5:6868: i/o timeout
+
+Exit code 1
+
+Create jumpbox: Running /work/bbl/bbl-env/create-jumpbox.sh: exit status 1
+```
+
+Yes, unfortunately it failed. On the vSphere VCSA console I was able to see the following message for a VM created by the bbl up command:
+
+```
+bosh stemcell: EXT4-fs error (device sdb2): ext4_has_uninit_itable:3135: 
+comm mount:Inode table for bg 0 marked as needing zeroing
+audit: kauditd hold queue overflow
+```
+
+It turns out that we've encountered a [regression](https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1817060) described as follows: `EXT4: Mainstream fix for regression caused by fix CVE-2018-10876 is missing from Ubuntu Bionic Kernel`
+
+There's a recommended work-around:
+
+```
+For the benefit of anyone else hitting this issue prior to a kernel fix, it is possible to avoid this problem by forcing mkfs to zero the inode tables immediately - e.g.
+
+# mkfs.ext4 -E lazy_itable_init=0
+
+This will cause mkfs to take a little longer creating the filesystem.
+
+With the workaround all block groups on the new filesystem (as shown by dumpe2fs) will look like this until some time after the filesystem was first mounted:
+Group 0: (Blocks 0-32767) csum 0x7b1a
+
+Once initialised (either by the ext4lazyinit or by using lazy_itable_init=0 ) they acquire the ITABLE_ZEROED flag and can then be safely remounted without hitting this bug:
+Group 0: (Blocks 0-32767) csum 0x7b1a [ITABLE_ZEROED]
+```
+
+## 7. Conclusion
+
+Even though we didn't get bbl to work (due to a bug at the Ubuntu level) it looks like the process was not hard to understand and follow. I'll stop here and maybe come back later, once the bug has been corrected.
 
 
 
