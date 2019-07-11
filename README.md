@@ -1,6 +1,8 @@
-# BBL
-Playing with BBL (Bosh Boot Loader)
-The instructions
+# BBL (Bosh Boot Loader) 
+
+Also known as "bubble", bbl or bosh-bootloader is a command line utility for standing up BOSH on an IaaS without the need for an Ops Manager. bbl supports AWS, GCP, Microsoft Azure, Openstack and vSphere.
+
+Note: it's has been my experience that using Ops Manager to create Bosh, deal with IaaS idiosincracies, and maintain stemcells is a simpler path to take. However, playing with bbl will give you insight into how Bosh works.
 
 ## Start by getting the BBL CLI
 
@@ -33,20 +35,9 @@ brew tap cloudfoundry/tap             # just in case you didn't do this earlier
 brew install bosh-cli
 ```
 
-In my case, I got an error messsage which you can read about here.
+In my case, I got an error messsage which you can read about [here](./xcode-problem.md)
 
 
-
-```
-$ brew install bosh-cli
-==> Installing bosh-cli from cloudfoundry/tap
-Error: Your Xcode (10.1) is too outdated.
-Please update to Xcode 10.2.1 (or delete it).
-Xcode can be updated from the App Store.
-```
-
-I used Mac's SpotLight Search to find Xcode and run it. I was prompted to install additional components. I eventually got to a `Welcome to Xcode Version 10.1 (10B61)` screen. I then went back to `Application` > `App Store` > `Searched for Xcode` and eventually discovered that I wasn't being offered any upgrade options because I needed to be on MacOS 10.14.3 or later before being able to install Xcode 10.2. 
-So after several minutes to upgrade my MacOs and then Xcode, I'm back to being able to install my `bosh-cli`.
 
 
 
