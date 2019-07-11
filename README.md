@@ -13,7 +13,6 @@ cd ~/Downloads/
 ls -last | head
 chmod +x bbl-v8.1.0_osx 
 mv ~/Downloads/bbl-v8.1.0_osx /usr/local/bin/bbl
-bbl --version
 ```
 The `bbl --version` command will show you, if it's working properly, something like this: `bbl 8.1.0 (darwin/amd64)`
 
