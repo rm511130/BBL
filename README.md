@@ -178,7 +178,7 @@ Exit code 1
 Create jumpbox: Running /work/bbl/bbl-env/create-jumpbox.sh: exit status 1
 ```
 
-Yes, unfortunately it failed. On the vSphere VCSA console I was able to see the following message for a VM created by the bbl up command:
+Yes, unfortunately it failed. On the vSphere VCSA console I was able to see the following message for a VM created by the `bbl up` command:
 
 ```
 bosh stemcell: EXT4-fs error (device sdb2): ext4_has_uninit_itable:3135: 
@@ -186,7 +186,11 @@ comm mount:Inode table for bg 0 marked as needing zeroing
 audit: kauditd hold queue overflow
 ```
 
-It turns out that we've encountered a [regression](https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1817060) described as follows: `EXT4: Mainstream fix for regression caused by fix CVE-2018-10876 is missing from Ubuntu Bionic Kernel`
+It turns out that we've encountered a [regression](https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1817060) described as follows: 
+
+```
+EXT4: Mainstream fix for regression caused by fix CVE-2018-10876 is missing from Ubuntu Bionic Kernel
+```
 
 There's a recommended work-around:
 
