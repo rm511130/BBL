@@ -13,4 +13,4 @@ I eventually got to a `Welcome to Xcode Version 10.1 (10B61)` screen.
 I then went back to `Application` > `App Store` > `Searched for Xcode` and eventually discovered that I wasn't being offered any upgrade options because I needed to be on MacOS 10.14.3 or later before being able to install Xcode 10.2. 
 So after several minutes to upgrade my MacOs and then Xcode, I'm back to being able to install my `bosh-cli`.
 
-[Back](./README.md) to the BBL installation instructions.
+[Back](./README.md#3-lets-direnv-to-unclutter-the-profile) to the BBL installation instructions.
