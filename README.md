@@ -208,12 +208,21 @@ Once initialised (either by the ext4lazyinit or by using lazy_itable_init=0 ) th
 Group 0: (Blocks 0-32767) csum 0x7b1a [ITABLE_ZEROED]
 ```
 
-## 7. Conclusion
+## 7. Conclusion & Clean-up
 
 Even though we didn't get bbl to work (due to a bug at the Ubuntu level) it looks like the process was not hard to understand and follow. I'll stop here and maybe come back later, once the bug has been corrected.
 
+```
+$ bbl down
+Are you sure you want to delete infrastructure for "bbl-env"? This operation cannot be undone! (y/N): y
+step: generating terraform template
+step: generating terraform variables
+step: terraform init
+step: terraform destroy
+step: finished destroying infrastructure
+```
 
-
+And I also deleted all the VMs and templates that had been created in the `RP-Concourse` resource pool.
 
 
 
